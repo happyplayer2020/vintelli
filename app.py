@@ -203,26 +203,46 @@ def scrape_vinted_item(url):
             '.price',
             '.item-price',
             '[class*="price"]',
-            'span[class*="price"]'
+            'span[class*="price"]',
+            '[data-testid="price"]',
+            '.web_ui__Text__text',
+            '[class*="Price"]',
+            'span[class*="Price"]',
+            'div[class*="price"]',
+            'div[class*="Price"]'
         ]
         
         for selector in price_selectors:
             price_elem = soup.select_one(selector)
             if price_elem:
                 price_text = price_elem.get_text().strip()
+                print(f"Found price element with text: {price_text}")  # Debug
+                
                 # Look for various price formats
                 price_patterns = [
                     r'€(\d+(?:[.,]\d+)?)',
                     r'(\d+(?:[.,]\d+)?)\s*€',
-                    r'(\d+(?:[.,]\d+)?)'
+                    r'(\d+(?:[.,]\d+)?)',
+                    r'(\d+)\s*EUR',
+                    r'(\d+)\s*euro'
                 ]
                 for pattern in price_patterns:
                     price_match = re.search(pattern, price_text)
                     if price_match:
                         price = price_match.group(1).replace(',', '.')
+                        print(f"Extracted price: {price}")  # Debug
                         break
                 if price:
                     break
+        
+        # If still no price, try to find any number that looks like a price
+        if not price:
+            # Look for any text containing numbers and euro symbols
+            all_text = soup.get_text()
+            price_matches = re.findall(r'€\s*(\d+(?:[.,]\d+)?)', all_text)
+            if price_matches:
+                price = price_matches[0].replace(',', '.')
+                print(f"Found price in page text: {price}")  # Debug
         
         # Try multiple selectors for brand
         brand_selectors = [
@@ -374,9 +394,29 @@ def create_fallback_data(url):
         elif any(word in title.lower() for word in ['dress', 'robe']):
             category = "Dresses"
         
+        # Try to estimate a realistic price based on brand and category
+        estimated_price = '25.00'  # Default
+        if brand == "Ralph Lauren":
+            if category == "Pants":
+                estimated_price = '35.00'
+            elif category == "Shirts":
+                estimated_price = '30.00'
+            elif category == "Sweaters":
+                estimated_price = '40.00'
+        elif brand == "Nike":
+            estimated_price = '45.00'
+        elif brand == "Adidas":
+            estimated_price = '40.00'
+        elif brand == "Levi's":
+            estimated_price = '30.00'
+        elif brand == "Zara":
+            estimated_price = '20.00'
+        elif brand == "H&M":
+            estimated_price = '15.00'
+        
         return {
             'title': title,
-            'price': '25.00',  # Default fallback price
+            'price': estimated_price,
             'brand': brand,
             'size': 'M',  # Default size
             'category': category,
