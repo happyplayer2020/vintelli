@@ -209,7 +209,15 @@ def scrape_vinted_item(url):
             '[class*="Price"]',
             'span[class*="Price"]',
             'div[class*="price"]',
-            'div[class*="Price"]'
+            'div[class*="Price"]',
+            '[class*="amount"]',
+            '[class*="Amount"]',
+            'span[class*="amount"]',
+            'div[class*="amount"]',
+            '[data-testid*="price"]',
+            '[data-testid*="Price"]',
+            '[class*="cost"]',
+            '[class*="Cost"]'
         ]
         
         for selector in price_selectors:
@@ -243,6 +251,24 @@ def scrape_vinted_item(url):
             if price_matches:
                 price = price_matches[0].replace(',', '.')
                 print(f"Found price in page text: {price}")  # Debug
+        
+        # Debug: Print the entire HTML to see what we're working with
+        if not price:
+            print("DEBUG: No price found, printing page structure...")
+            print("Page title:", soup.title.get_text() if soup.title else "No title")
+            print("All text containing '€':")
+            all_text = soup.get_text()
+            euro_lines = [line.strip() for line in all_text.split('\n') if '€' in line]
+            for line in euro_lines[:10]:  # Show first 10 lines with euro
+                print(f"  {line}")
+            
+            # Try to find any number that could be a price (between 5 and 500 euros)
+            all_numbers = re.findall(r'(\d{1,3}(?:[.,]\d{2})?)', all_text)
+            potential_prices = [num for num in all_numbers if 5 <= float(num.replace(',', '.')) <= 500]
+            if potential_prices:
+                # Take the first reasonable price found
+                price = potential_prices[0].replace(',', '.')
+                print(f"Found potential price from numbers: {price}")
         
         # Try multiple selectors for brand
         brand_selectors = [
