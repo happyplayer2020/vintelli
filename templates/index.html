@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vintelli - Vinted Resell Value Analyzer</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <i class="fas fa-chart-line"></i>
+                <h1>Vintelli</h1>
+            </div>
+            <p class="tagline">AI-powered Vinted resell value analyzer</p>
+        </header>
+
+        <!-- Main Form -->
+        <main class="main-content">
+            <div class="form-container">
+                <h2>Check Resell Value</h2>
+                <p class="form-description">Paste a Vinted product URL to analyze its resell potential</p>
+                
+                <form id="analyzeForm" class="analyze-form">
+                    <div class="input-group">
+                        <div class="input-wrapper">
+                            <i class="fas fa-link input-icon"></i>
+                            <input 
+                                type="url" 
+                                id="vintedUrl" 
+                                name="vintedUrl" 
+                                placeholder="https://www.vinted.com/items/..." 
+                                required
+                                class="url-input"
+                            >
+                        </div>
+                        <button type="submit" class="analyze-btn" id="analyzeBtn">
+                            <i class="fas fa-search"></i>
+                            <span>Check Resell Value</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Loading State -->
+            <div id="loadingState" class="loading-state hidden">
+                <div class="loading-spinner"></div>
+                <p>Analyzing your item...</p>
+                <p class="loading-subtitle">This may take a few seconds</p>
+            </div>
+
+            <!-- Results Section -->
+            <div id="resultsSection" class="results-section hidden">
+                <!-- Item Details -->
+                <div class="item-details">
+                    <h3>Item Details</h3>
+                    <div class="item-info">
+                        <div class="info-row">
+                            <span class="label">Title:</span>
+                            <span id="itemTitle" class="value">-</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="label">Price:</span>
+                            <span id="itemPrice" class="value">-</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="label">Brand:</span>
+                            <span id="itemBrand" class="value">-</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="label">Category:</span>
+                            <span id="itemCategory" class="value">-</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="label">Size:</span>
+                            <span id="itemSize" class="value">-</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="label">Condition:</span>
+                            <span id="itemCondition" class="value">-</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Analysis Results -->
+                <div class="analysis-results">
+                    <h3>Resell Analysis</h3>
+                    
+                    <div class="result-cards">
+                        <div class="result-card resellable-card">
+                            <div class="card-icon">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="card-content">
+                                <h4>Resellability</h4>
+                                <p id="resellableResult" class="result-value">-</p>
+                            </div>
+                        </div>
+
+                        <div class="result-card profit-card">
+                            <div class="card-icon">
+                                <i class="fas fa-euro-sign"></i>
+                            </div>
+                            <div class="card-content">
+                                <h4>Potential Profit</h4>
+                                <p id="profitResult" class="result-value">-</p>
+                            </div>
+                        </div>
+
+                        <div class="result-card time-card">
+                            <div class="card-icon">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div class="card-content">
+                                <h4>Time to Flip</h4>
+                                <p id="timeResult" class="result-value">-</p>
+                            </div>
+                        </div>
+
+                        <div class="result-card price-card">
+                            <div class="card-icon">
+                                <i class="fas fa-tag"></i>
+                            </div>
+                            <div class="card-content">
+                                <h4>Recommended Price</h4>
+                                <p id="priceResult" class="result-value">-</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="risk-section">
+                        <h4><i class="fas fa-exclamation-triangle"></i> Risk Summary</h4>
+                        <p id="riskResult" class="risk-text">-</p>
+                    </div>
+                </div>
+
+                <!-- Similar Items -->
+                <div class="similar-items">
+                    <h3>Similar Sold Items</h3>
+                    <div id="similarItemsList" class="similar-items-list">
+                        <!-- Similar items will be populated here -->
+                    </div>
+                </div>
+
+                <!-- Try Another Button -->
+                <div class="try-another">
+                    <button id="tryAnotherBtn" class="try-another-btn">
+                        <i class="fas fa-plus"></i>
+                        Analyze Another Item
+                    </button>
+                </div>
+            </div>
+
+            <!-- Error State -->
+            <div id="errorState" class="error-state hidden">
+                <div class="error-icon">
+                    <i class="fas fa-exclamation-circle"></i>
+                </div>
+                <h3>Oops! Something went wrong</h3>
+                <p id="errorMessage">An error occurred while analyzing your item.</p>
+                <button id="retryBtn" class="retry-btn">
+                    <i class="fas fa-redo"></i>
+                    Try Again
+                </button>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>&copy; 2024 Vintelli. AI-powered resell analysis for Vinted sellers.</p>
+        </footer>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html> 
